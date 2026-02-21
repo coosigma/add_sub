@@ -1,0 +1,28 @@
+*.zip
+*.rar
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.tar.bz2
+
+# 忽略常见视频文件
+*.mp4
+*.mkv
+*.avi
+*.mov
+*.flv
+*.wmv
+*.ts
+*.webm
+
+# 忽略 output 目录下所有内容
+output/
+
+# 保留脚本和说明文件
+!*.sh
+!README.md
+# 忽略所有字幕文件
+*.ass
+*.js
+*.torrent
