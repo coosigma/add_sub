@@ -26,3 +26,21 @@ output/
 *.ass
 *.js
 *.torrent
+
+# Editor & OS junk
+.DS_Store
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtualenv
+.venv/
+
+# Temporary staging dirs used by run_pipeline.sh
+staging*
+
+# Temporary archives / packages / outputs created by pipeline
+output.zip
