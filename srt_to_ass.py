@@ -69,17 +69,23 @@ def convert(infile: str, outfile: str, force_align: str | None = None) -> None:
     subs.save(outfile, encoding="utf-8")
 
 
-def adjust_ass_styles(filepath: str, fontname: str = "Arial", fontsize: int = 18, force_align: str | None = None, margin_v: int | None = None, raise_for_24: int | None = 20, h_margin: int | None = None, h_margin_pct: int | None = None, play_res_x: int | None = None, outline: float | None = None, shadow: float | None = None) -> None:
+def adjust_ass_styles(filepath: str, fontname: str = "Arial", fontsize: int = 18, force_align: str | None = None, margin_v: int | None = None, raise_for_24: int | None = 20, h_margin: int | None = None, h_margin_pct: int | None = None, play_res_x: int | None = None, play_res_y: int | None = None, outline: float | None = None, shadow: float | None = None) -> None:
     """Adjust ASS styles (font name, size) and per-line alignment tags.
 
     - Updates all styles' `fontname` and `fontsize`.
     - Ensures each event has an alignment override that matches `force_align` (if provided).
     """
     subs = pysubs2.load(filepath, encoding="utf-8")
-    # adjust PlayResX if requested (wider resolution -> more horizontal space for subtitles)
+    # adjust PlayResX/PlayResY if requested (PlayRes defines ASS coordinate space;
+    # players scale styles by comparing PlayRes to actual video resolution)
     if play_res_x is not None:
         try:
             subs.info["PlayResX"] = str(int(play_res_x))
+        except Exception:
+            pass
+    if play_res_y is not None:
+        try:
+            subs.info["PlayResY"] = str(int(play_res_y))
         except Exception:
             pass
     # adjust outline and shadow if requested

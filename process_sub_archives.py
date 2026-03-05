@@ -125,8 +125,11 @@ def integrate_ass_into_video(ass_path: Path, video_path: Path) -> Path | None:
         str(video_path),
         "-i",
         str(ass_path),
+        # map only video and audio from input (exclude data/timed-metadata streams that Matroska rejects)
         "-map",
-        "0",
+        "0:v?",
+        "-map",
+        "0:a?",
         "-map",
         "1",
         "-c",
@@ -166,8 +169,11 @@ def integrate_ass_and_video_to_outdir(ass_path: Path, video_path: Path, outdir: 
         str(video_path),
         "-i",
         str(ass_path),
+        # map only video and audio from input (exclude data/timed-metadata streams that Matroska rejects)
         "-map",
-        "0",
+        "0:v?",
+        "-map",
+        "0:a?",
         "-map",
         "1",
         "-c",
@@ -187,7 +193,7 @@ def integrate_ass_and_video_to_outdir(ass_path: Path, video_path: Path, outdir: 
         return None
 
 
-def process_subdir(subdir: Path, outdir: Path, temp_root: Path, force_align: str = "bottom-center", mp4_list: list[Path] | None = None, mux: bool = False, margin_v: int | None = None, h_margin: int | None = None, h_margin_pct: int | None = None, play_res_x: int | None = None, outline: float | None = None, shadow: float | None = None) -> None:
+def process_subdir(subdir: Path, outdir: Path, temp_root: Path, force_align: str = "bottom-center", mp4_list: list[Path] | None = None, mux: bool = False, margin_v: int | None = None, h_margin: int | None = None, h_margin_pct: int | None = None, play_res_x: int | None = None, play_res_y: int | None = None, outline: float | None = None, shadow: float | None = None) -> None:
     outdir.mkdir(parents=True, exist_ok=True)
     temp_root.mkdir(parents=True, exist_ok=True)
 
@@ -213,7 +219,7 @@ def process_subdir(subdir: Path, outdir: Path, temp_root: Path, force_align: str
                     outf = make_unique(name)
                     convert(str(f), str(outf), force_align=force_align)
                     # ensure styles/alignments updated
-                    adjust_ass_styles(str(outf), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, outline=outline, shadow=shadow)
+                    adjust_ass_styles(str(outf), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, play_res_y=play_res_y, outline=outline, shadow=shadow)
                     if mp4_list:
                         mv = find_best_video_for_ass(outf, mp4_list)
                         if mv and mux:
@@ -225,7 +231,7 @@ def process_subdir(subdir: Path, outdir: Path, temp_root: Path, force_align: str
                     dest_f = make_unique(name)
                     shutil.copy2(f, dest_f)
                     # adjust styles in-place
-                    adjust_ass_styles(str(dest_f), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, outline=outline, shadow=shadow)
+                    adjust_ass_styles(str(dest_f), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, play_res_y=play_res_y, outline=outline, shadow=shadow)
                     if mp4_list and mux:
                         mv = find_best_video_for_ass(dest_f, mp4_list)
                         if mv:
@@ -239,7 +245,7 @@ def process_subdir(subdir: Path, outdir: Path, temp_root: Path, force_align: str
                 name = (item.stem + ".ass")
                 outp = make_unique(name)
                 convert(str(item), str(outp), force_align=force_align)
-                adjust_ass_styles(str(outp), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, outline=outline, shadow=shadow)
+                adjust_ass_styles(str(outp), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, play_res_y=play_res_y, outline=outline, shadow=shadow)
                 if mp4_list and mux:
                     mv = find_best_video_for_ass(outp, mp4_list)
                     if mv:
@@ -250,7 +256,7 @@ def process_subdir(subdir: Path, outdir: Path, temp_root: Path, force_align: str
             if item.suffix.lower() == ".ass":
                 outp = make_unique(item.name)
                 shutil.copy2(item, outp)
-                adjust_ass_styles(str(outp), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, outline=outline, shadow=shadow)
+                adjust_ass_styles(str(outp), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, play_res_y=play_res_y, outline=outline, shadow=shadow)
                 if mp4_list and mux:
                     mv = find_best_video_for_ass(outp, mp4_list)
                     if mv:
@@ -273,7 +279,7 @@ def process_subdir(subdir: Path, outdir: Path, temp_root: Path, force_align: str
                             name = f.relative_to(tdpath).with_suffix(".ass").name
                             outp = make_unique(name)
                             convert(str(f), str(outp), force_align=force_align)
-                            adjust_ass_styles(str(outp), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, outline=outline, shadow=shadow)
+                            adjust_ass_styles(str(outp), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, play_res_y=play_res_y, outline=outline, shadow=shadow)
                             if mp4_list and mux:
                                 mv = find_best_video_for_ass(outp, mp4_list)
                                 if mv:
@@ -284,7 +290,7 @@ def process_subdir(subdir: Path, outdir: Path, temp_root: Path, force_align: str
                             name = f.relative_to(tdpath).name
                             destp = make_unique(name)
                             shutil.copy2(f, destp)
-                            adjust_ass_styles(str(destp), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, outline=outline, shadow=shadow)
+                            adjust_ass_styles(str(destp), fontname="Arial", fontsize=18, force_align=force_align, margin_v=margin_v, raise_for_24=30, h_margin=h_margin, h_margin_pct=h_margin_pct, play_res_x=play_res_x, play_res_y=play_res_y, outline=outline, shadow=shadow)
                             if mp4_list and mux:
                                 mv = find_best_video_for_ass(destp, mp4_list)
                                 if mv:
@@ -306,7 +312,8 @@ def main():
     p.add_argument("--raise-by", type=int, default=40, help="raise subtitle vertical margin in pixels (increase MarginV). Default: 40")
     p.add_argument("--h-margin", type=int, default=8, help="horizontal margin (MarginL/MarginR) in pixels; lower value -> wider text area. Default: 8")
     p.add_argument("--h-margin-pct", type=int, default=0, help="horizontal margin percent reduction (0-100); e.g. 70 reduces margins by 70% to widen text area")
-    p.add_argument("--play-res-x", type=int, default=2560, help="ASS PlayResX (horizontal resolution); larger value gives more width for subtitles. Default: 2560")
+    p.add_argument("--play-res-x", type=int, default=1920, help="ASS PlayResX (horizontal resolution); larger value gives more width for subtitles. Default: 1920")
+    p.add_argument("--play-res-y", type=int, default=1080, help="ASS PlayResY (vertical resolution); affects font scaling. Default: 1080")
     p.add_argument("--outline", type=float, default=0.5, help="outline width (0.0-2.0); smaller value = less shadow. Default: 0.5")
     p.add_argument("--shadow", type=float, default=0.5, help="shadow blur (0.0-2.0); smaller value = less shadow. Default: 0.5")
 
@@ -339,6 +346,7 @@ def main():
             h_margin=(args.h_margin if args.h_margin and args.h_margin > 0 else None),
             h_margin_pct=(args.h_margin_pct if args.h_margin_pct and args.h_margin_pct > 0 else None),
             play_res_x=(args.play_res_x if args.play_res_x and args.play_res_x > 0 else None),
+            play_res_y=(args.play_res_y if args.play_res_y and args.play_res_y > 0 else None),
             outline=(args.outline if args.outline and args.outline > 0 else None),
             shadow=(args.shadow if args.shadow and args.shadow > 0 else None),
         )

@@ -29,7 +29,8 @@ pip install -r requirements.txt
 : "${RAISE_BY:=40}"
 : "${H_MARGIN:=8}"
 : "${H_MARGIN_PCT:=0}"
-: "${PLAY_RES_X:=2560}"
+: "${PLAY_RES_X:=1920}"
+: "${PLAY_RES_Y:=1080}"
 : "${OUTLINE:=0.5}"
 : "${SHADOW:=0.5}"
 
@@ -90,7 +91,7 @@ rename_subs() {
       e="$(echo "$parent" | sed -nE 's/.*[sS]([0-9]{1,2})[._[:space:]-]*[eE]([0-9]{1,2}).*/\2/p')"
     fi
     if [ -n "$s" ] && [ -n "$e" ]; then
-      sxx=$(printf "s%02de%02d" "$s" "$e")
+      sxx=$(printf "s%02de%02d" "$((10#$s))" "$((10#$e))")
       newpath="$(dirname "$f")/$sxx.ass"
       if [ "$f" != "$newpath" ]; then
         echo "Renaming $f -> $newpath"
@@ -130,6 +131,10 @@ PY_RES_ARG=""
 if [ ! -z "${PLAY_RES_X-}" ] && [ "${PLAY_RES_X}" -gt 0 ] 2>/dev/null; then
   PY_RES_ARG="--play-res-x ${PLAY_RES_X}"
 fi
+PY_RES_Y_ARG=""
+if [ ! -z "${PLAY_RES_Y-}" ] && [ "${PLAY_RES_Y}" -gt 0 ] 2>/dev/null; then
+  PY_RES_Y_ARG="--play-res-y ${PLAY_RES_Y}"
+fi
 PY_OUTLINE_ARG=""
 if [ ! -z "${OUTLINE-}" ] && [ "$(echo "${OUTLINE} > 0" | bc 2>/dev/null)" -eq 1 ] 2>/dev/null; then
   PY_OUTLINE_ARG="--outline ${OUTLINE}"
@@ -138,7 +143,7 @@ PY_SHADOW_ARG=""
 if [ ! -z "${SHADOW-}" ] && [ "$(echo "${SHADOW} > 0" | bc 2>/dev/null)" -eq 1 ] 2>/dev/null; then
   PY_SHADOW_ARG="--shadow ${SHADOW}"
 fi
-"$ROOT/.venv/bin/python" "$ROOT/process_sub_archives.py" --subdir "$STAGING_DIR" --outdir output --inputdir input --align bottom-center --mux $PY_RAISE_ARG $PY_HM_ARG $PY_HM_PCT_ARG $PY_RES_ARG $PY_OUTLINE_ARG $PY_SHADOW_ARG
+"$ROOT/.venv/bin/python" "$ROOT/process_sub_archives.py" --subdir "$STAGING_DIR" --outdir output --inputdir input --align bottom-center --mux $PY_RAISE_ARG $PY_HM_ARG $PY_HM_PCT_ARG $PY_RES_ARG $PY_RES_Y_ARG $PY_OUTLINE_ARG $PY_SHADOW_ARG
 
 echo "Packaging output (optional)..."
 # Allow skipping packaging if SKIP_ZIP=1 is set in the environment
